@@ -15,25 +15,32 @@ namespace ZombieParty.Controllers
 
         public IActionResult Index()
         {
-            this.ViewBag.MaListe = _baseDonnees.Zombies.ToList();
+            List<Zombie> zombiesList = _baseDonnees.Zombies.ToList();
+            return View(zombiesList);
 
-            return View();
         }
 
         public IActionResult Create()
         {
             ViewBag.ZombieTypes = new SelectList(_baseDonnees.ZombieTypes.ToList(), "Id", "TypeName", null);
-            return View();
+            ZombieVM zombieVM = new ZombieVM();
+
+            zombieVM.ZombieTypeSelectList = new SelectList(_baseDonnees.ZombieTypes.ToList(), "Id", "TypeName");
+
+            return View(zombieVM);
         }
 
+        
+
         [HttpPost]
-        public IActionResult Create(Zombie zombie)
+        public IActionResult Create(Zombie zombie ZombieVM zombieVM)
         {
-            //Si le modèle est valide le zombie est ajouté et nous sommes redirigé vers index.
+            //Si le modèle est valide le zombie est ajouté et nous sommes redirigés vers index.
             if (ModelState.IsValid)
             {
-                _baseDonnees.Zombies.Add(zombie);
-                TempData["Success"] = $"Zombie {zombie.Name} added";
+                _baseDonnees.Zombies.Add(zombie zombieVM.Zombie);
+                _baseDonnees.SaveChanges();
+                TempData["Success"] = $"Zombie {zombie.Name zombieVM.Zombie.Name} added";
                 return this.RedirectToAction("Index");
             }
             //Il faut repopuler le zombieType dans le ViewBag
@@ -43,7 +50,21 @@ namespace ZombieParty.Controllers
 
             ViewBag.ZombieTypes = new SelectList(_baseDonnees.ZombieTypes.ToList(), "Id", "TypeName", selectedZombieType);
 
-            return View(zombie);
+            zombieVM.ZombieTypeSelectList = new SelectList(_baseDonnees.ZombieTypes.ToList(), "Id", "TypeName");
+
+            return View(zombie zombieVM); //retourne l'objet pour avoir les données 
+        }
+
+
+    }
+
+        public class ZombieVM
+        {
+            // Pour Upsert 1 zombie à la fois
+            public Zombie Zombie { get; set; }
+
+
+            public SelectList? ZombieTypeSelectList { get; set; }
         }
 
     }

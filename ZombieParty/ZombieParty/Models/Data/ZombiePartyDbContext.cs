@@ -8,7 +8,7 @@ namespace ZombieParty.Models.Data
         {
 
         }
-
+        public DbSet<NOM_CLASSE> NOM_CLASSE_AVEC_UN_S { get; set; }
     }
 
     
